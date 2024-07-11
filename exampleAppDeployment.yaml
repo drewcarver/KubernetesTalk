@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exampleapp
+  namespace: example
+spec:
+  selector:
+    matchLabels:
+      app: exampleapp
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25% 
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: exampleapp
+    spec:
+      containers:
+        - name: example
+          imagePullPolicy: Never
+          image: exampleapp
+          ports:
+            - containerPort: 8080
+          #env:
+            #  - name: GreetingName
+              #  value: Meetup
+          # envFrom:
+            #  - configMapRef:
+            #    name: exampleapp-configmap
+          env:
+            - name: GreetingName
+              valueFrom:
+                secretKeyRef:
+                  name: exampleapp-secret
+                  key: GreetingNameSecret
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      terminationGracePeriodSeconds: 30
